@@ -5,17 +5,17 @@ from selenium import webdriver
 
 BASE_URL = 'https://www.federalreserve.gov'
 
-print("Launching webdriver...")
-driver = webdriver.Chrome('chromedriver')
-
-print("Collecting data...")
+# Years 2005 and below are archived
+START_YEAR = 2006
+END_YEAR = 2021
 
 all_data = []
 counter = 0
 
-# Archive 2005 below
-START_YEAR = 2006
-END_YEAR = 2021
+print("Launching webdriver...")
+driver = webdriver.Chrome('chromedriver')
+
+print("Collecting data...")
 
 for year in range(START_YEAR, END_YEAR + 1):
     if year >= 2011:
@@ -26,8 +26,8 @@ for year in range(START_YEAR, END_YEAR + 1):
     driver.get(speech_url)
 
     print(f"\nCollecting from Year {year}...")
-    html = driver.page_source
-    soup = BeautifulSoup(html, 'html.parser')
+    inner_html = driver.page_source
+    soup = BeautifulSoup(inner_html, 'html.parser')
     posts = soup.find('div', class_='row eventlist').find_all('div', class_='row')
 
     for post in posts:
@@ -44,23 +44,24 @@ for year in range(START_YEAR, END_YEAR + 1):
             # retrieving text from link
             post_url = BASE_URL + link
             driver.get(post_url)
-            html = driver.page_source
-            inner_soup = BeautifulSoup(html, 'html.parser')
+            inner_html = driver.page_source
+            inner_soup = BeautifulSoup(inner_html, 'html.parser')
 
             paragraphs = inner_soup.find('div', class_='col-xs-12 col-sm-8 col-md-8').find_all('p')
             text = ''
             for paragraph in paragraphs:
                 if not paragraph.find('a'):
-                    text += paragraph.text
+                    text += paragraph.text.strip()
 
             all_data.append({
                 'date': date,
-                'title': title,
-                'link': link,
                 'speaker': speaker,
+                'title': title,
                 'location': location,
+                'link': post_url,
                 'text': text
             })
+
         except Exception as e:
             print(e)
             continue
@@ -68,5 +69,5 @@ for year in range(START_YEAR, END_YEAR + 1):
 print("\nCollection completed!")
 driver.close()
 
-df = pd.DataFrame(all_data).drop_duplicates()
+df = pd.DataFrame(all_data).drop_duplicates().sort_values('date')
 df.to_csv('data/meta/fomc_speeches.csv', index=False)
