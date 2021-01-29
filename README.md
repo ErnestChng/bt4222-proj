@@ -1,1 +1,1 @@
-# bt4222-proj
+# BT4222 Project
