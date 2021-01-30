@@ -5,9 +5,7 @@ from selenium import webdriver
 
 BASE_URL = 'https://www.federalreserve.gov'
 
-# Years 2005 and below are archived
-START_YEAR = 2006
-END_YEAR = 2021
+START_YEAR, END_YEAR = 2006, 2021
 
 all_data = []
 counter = 0
@@ -16,7 +14,6 @@ print("Launching webdriver...")
 driver = webdriver.Chrome('chromedriver')
 
 print("Collecting data...")
-
 for year in range(START_YEAR, END_YEAR + 1):
     if year >= 2011:
         speech_url = f'{BASE_URL}/newsevents/speech/{year}-speeches.htm'
@@ -47,6 +44,7 @@ for year in range(START_YEAR, END_YEAR + 1):
             inner_html = driver.page_source
             inner_soup = BeautifulSoup(inner_html, 'html.parser')
 
+            # TODO: fix the text
             paragraphs = inner_soup.find('div', class_='col-xs-12 col-sm-8 col-md-8').find_all('p')
             text = ''
             for paragraph in paragraphs:
@@ -69,5 +67,7 @@ for year in range(START_YEAR, END_YEAR + 1):
 print("\nCollection completed!")
 driver.close()
 
-df = pd.DataFrame(all_data).drop_duplicates().sort_values('date')
+df = pd.DataFrame(all_data).drop_duplicates().sort_values('date').reset_index(drop=True)
+
+# TODO: figure out a way to write to csv with the newline characters
 df.to_csv('data/meta/fomc_speeches.csv', index=False)

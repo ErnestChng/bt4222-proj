@@ -13,14 +13,12 @@ decoded = response.content.decode('utf-8-sig')
 records = json.loads(decoded)
 
 all_data = []
-counter = 0
-len_records = len(records)
+counter, len_records = 0, len(records)
 
 print("Launching webdriver...")
 driver = webdriver.Chrome('chromedriver')
 
 print("Collecting data...")
-
 for record in records:
     counter += 1
     print(f"Collecting post #{counter}/{len_records}...")
@@ -33,6 +31,7 @@ for record in records:
             inner_html = driver.page_source
             inner_soup = BeautifulSoup(inner_html, 'html.parser')
 
+            # TODO: fix the text
             text = inner_soup.find('div', class_='col-xs-12 col-sm-8 col-md-8').text.strip()
 
             all_data.append({
@@ -51,5 +50,7 @@ for record in records:
 print("\nCollection completed!")
 driver.close()
 
-df = pd.DataFrame(all_data).drop_duplicates().sort_values('date')
+df = pd.DataFrame(all_data).drop_duplicates().sort_values('date').reset_index(drop=True)
+
+# TODO: figure out a way to write to csv with the newline characters
 df.to_csv('data/meta/fomc_testimony.csv', index=False)
