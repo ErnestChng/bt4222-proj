@@ -71,18 +71,6 @@ for year in range(2006, 2015):
         title = details.find('h3', class_='title').text
         statement = details.find('div', class_='col-xs-12 col-sm-8 col-md-8').text.strip().replace('\n', ' ')
 
-        # This corrects some dates in the link that do not match with the meeting date
-        if date == datetime(2007,6,18):
-            date = datetime(2007,6,28)
-        elif date == datetime(2007,8,17):
-            date = datetime(2007,8,16)
-        elif date == datetime(2008,1,22):
-            date = datetime(2008,1,21)
-        elif date == datetime(2008,3,11):
-            date = datetime(2008,3,10)
-        elif date == datetime(2008,10,8):
-            date = datetime(2008,10,7)
-
         df.loc[len(df)] = [date, speaker, title, full_link, statement]
 
 
