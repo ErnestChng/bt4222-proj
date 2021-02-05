@@ -2,12 +2,12 @@ beautifulsoup4==4.9.3
 bs4==0.0.1
 certifi==2020.12.5
 chardet==4.0.0
+fredapi==0.4.3
 idna==2.10
 numpy==1.19.5
 pandas==1.2.1
 python-dateutil==2.8.1
 pytz==2020.5
-quandl==3.6.0
 requests==2.25.1
 selenium==3.141.0
 six==1.15.0
