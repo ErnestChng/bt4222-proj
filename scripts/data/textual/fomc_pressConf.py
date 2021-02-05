@@ -1,10 +1,11 @@
-import re
 import os
+import re
+from datetime import datetime
+
 import pandas as pd
 import requests
-from bs4 import BeautifulSoup
-from datetime import datetime
 import textract
+from bs4 import BeautifulSoup
 
 #### NOTE #####
 # Press Conference Transcripts are in pdf. Need to download pdf before extracting text. Texts are saved to .txt
@@ -27,6 +28,7 @@ CHAIR_DICT = {
     ('2018-02-05', '2022-02-05'): 'Jerome Powell',
 }
 
+
 def retrieve_speaker_from_date(date: datetime) -> str:
     """
     Retrieve speaker using date.
@@ -42,16 +44,15 @@ def retrieve_speaker_from_date(date: datetime) -> str:
 
     return speaker
 
+
 def combine_paragraphs(paragraphs):
     section = -1
     paragraph_sections = []
     print('Combining paragraphs...')
     for paragraph in paragraphs:
-        if not re.search(
-                '^(page|january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)',
+        if not re.search('^(page|january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)',
                 paragraph.lower()):
-            if len(re.findall(r'[A-Z]', paragraph[:10])) > 5 and not re.search(
-                    '(present|frb/us|abs cdo|libor|rp–ioer|lsaps|cusip|nairu|s cpi|clos, r)',
+            if len(re.findall(r'[A-Z]', paragraph[:10])) > 5 and not re.search('(present|frb/us|abs cdo|libor|rp–ioer|lsaps|cusip|nairu|s cpi|clos, r)',
                     paragraph[:10].lower()):
                 section += 1
                 paragraph_sections.append("")
@@ -60,6 +61,7 @@ def combine_paragraphs(paragraphs):
 
     full_script = ''.join(paragraph_sections)
     return full_script
+
 
 #### Section 1: Retrieve FOMC Press Conference Transcripts from 2016 to 2021 ####
 r = requests.get(STATEMENT_URL)
@@ -108,8 +110,7 @@ for i in range(len(df)):
     file1.write(full_script)
     file1.close()
 
-df.to_csv(os.path.join(base_dir, './data/meta/fomc_pressConf.csv'))
-
+df.to_csv(os.path.join(base_dir, './data/macro/fomc_pressConf.csv'))
 
 #### Section 2: Retrieve minutes from 2006 to 2015 ####
 df = pd.DataFrame(columns=['Date', 'Speaker', 'Title', 'Link', 'Text'])
@@ -152,6 +153,5 @@ for year in range(2006, 2016):
             print(e)
             continue
 
-
 df = df.set_index('Date').sort_index(ascending=False)
-df.to_csv(os.path.join(base_dir, './data/meta/fomc_pressConf1.csv'))
+df.to_csv(os.path.join(base_dir, './data/textual/fomc_pressConf1.csv'))

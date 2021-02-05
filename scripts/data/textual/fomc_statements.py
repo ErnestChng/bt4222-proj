@@ -1,14 +1,12 @@
 import re
-import os
+from datetime import datetime
+
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime
 
-dir = '/Users/jolene/Downloads/1.BT4222/Group Project/bt4222-proj'
 BASE_URL = 'https://www.federalreserve.gov'
 STATEMENT_URL = 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm'
-
 
 CHAIR_DICT = {
     ('1987-08-11', '2006-01-31'): 'Alan Greenspan',
@@ -16,6 +14,7 @@ CHAIR_DICT = {
     ('2014-02-03', '2018-02-03'): 'Janet Yellen',
     ('2018-02-05', '2022-02-05'): 'Jerome Powell',
 }
+
 
 def retrieve_speaker_from_date(date: datetime) -> str:
     """
@@ -31,6 +30,7 @@ def retrieve_speaker_from_date(date: datetime) -> str:
             speaker = chair
 
     return speaker
+
 
 #### Retrieve FOMC statements from 2016 to 2021 ####
 response = requests.get(STATEMENT_URL)
@@ -51,14 +51,12 @@ for content in contents:
 
     df.loc[len(df)] = [date, speaker, title, full_link, statement]
 
-
-
 #### Retrieve minutes from 2006 to 2015 ####
 for year in range(2006, 2015):
     statement_url = BASE_URL + '/monetarypolicy/fomchistorical' + str(year) + '.htm'
     response = requests.get(statement_url)
     inner_soup = BeautifulSoup(response.text, 'html.parser')
-    contents = inner_soup.findAll('a', text = 'Statement')
+    contents = inner_soup.findAll('a', text='Statement')
 
     for content in contents:
         link = content.attrs['href']
@@ -73,6 +71,5 @@ for year in range(2006, 2015):
 
         df.loc[len(df)] = [date, speaker, title, full_link, statement]
 
-
 df = df.set_index('Date').sort_index(ascending=False)
-df.to_csv(os.path.join(dir, './data/meta/fomc_statements.csv'))
+df.to_csv('./data/textual/fomc_statements.csv')

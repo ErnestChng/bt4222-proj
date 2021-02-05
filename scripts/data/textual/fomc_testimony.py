@@ -53,4 +53,4 @@ driver.close()
 df = pd.DataFrame(all_data).drop_duplicates().sort_values('date').reset_index(drop=True)
 
 # TODO: figure out a way to write to csv with the newline characters
-df.to_csv('data/meta/fomc_testimony.csv', index=False)
+df.to_csv('data/textual/fomc_testimony.csv', index=False)
