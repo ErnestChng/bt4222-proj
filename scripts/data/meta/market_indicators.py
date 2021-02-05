@@ -13,6 +13,7 @@ indicators = ('DFEDTARL',  # Federal Funds Target Range - lower bound
               'PAYEMS',    # Total NonFarm payrolls (Employment)
               'RRSFS',     # Real Retail and Food Services Sales
               'GFDEBTN',   # Federal Debt
+              'VIXCLS',    # CBOE Volatility Index (VIX)
               'DFF')       # Effective Federal Funds Rate
 
 full_data = pd.DataFrame()
