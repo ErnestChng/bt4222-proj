@@ -77,5 +77,6 @@ for year in range(2006, 2015):
 
         df.loc[len(df)] = [date, speaker, title, full_link, statement]
 
-df = df.set_index('Date').sort_index(ascending=False)
+df.columns = df.columns.str.lower()
+df = df.drop_duplicates().sort_values('date').reset_index(drop=True)
 df.to_csv('data/textual/fomc_statements.txt', sep=',', index=False)

@@ -139,4 +139,4 @@ for year in range(2006, 2016):
             continue
 
 df = df.set_index('Date').sort_index(ascending=False)
-df.to_csv(os.path.join(base_dir, './data/meta/fomc_pressConf.txt'), header=True, index=True, sep=',')
+df.to_csv(os.path.join(base_dir, './data/meta/fomc_press_conf.txt'), header=True, index=True, sep=',')

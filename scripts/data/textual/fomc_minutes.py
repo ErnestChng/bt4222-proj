@@ -29,13 +29,13 @@ def retrieve_speaker_from_date(date: datetime) -> str:
 
     for (start_date, end_date), chair in CHAIR_DICT.items():
         start_date, end_date = pd.to_datetime(start_date), pd.to_datetime(end_date)
-        if start_date < date < end_date:
+        if start_date < date <= end_date:
             speaker = chair
 
     return speaker
 
 
-#### Retrieve minutes from 2014 to 2021 ####
+#### Retrieve minutes from 2016 to 2021 ####
 print("Launching webdriver...")
 # driver = webdriver.Chrome('chromedriver')
 driver = webdriver.Chrome(ChromeDriverManager(version="89.0.4389.23").install())
@@ -64,7 +64,6 @@ for content in contents:
         soup = BeautifulSoup(html, 'html.parser')
 
         article = soup.find('div', class_='col-xs-12 col-sm-8 col-md-9')
-        title = article.find('h3')
 
         # TODO: fix the text
         paragraphs = article.find_all('p')
@@ -75,7 +74,6 @@ for content in contents:
         all_data.append({
             'date': date,
             'speaker': speaker,
-            'title': title,
             'link': f'{BASE_URL}{link}',
             'text': text.strip()
         })
@@ -84,60 +82,61 @@ for content in contents:
         print(e)
         continue
 
-#### Retrieve minutes from 2006 to 2014 ####
-for year in range(2006, 2014):
+#### Retrieve minutes from 2006 to 2016 ####
+for year in range(2006, 2015):
     try:
         minutes_url = f'{BASE_URL}/monetarypolicy/fomchistorical{year}.htm'
+        print(minutes_url)
         driver.get(minutes_url)
         html = driver.page_source
         soup = BeautifulSoup(html, 'html.parser')
         contents = soup.find_all('a', href=re.compile('(^/monetarypolicy/fomcminutes|^/fomc/minutes|^/fomc/MINUTES)'))
 
         for content in contents:
-            counter += 1
-            print(f"Collecting post #{counter}...")
+            try:
+                counter += 1
+                print(f"Collecting post #{counter}...")
 
-            link = content.get('href')
-            date = pd.to_datetime(re.findall('[0-9]{8}', link)[0])
-            speaker = retrieve_speaker_from_date(date)
+                link = content.get('href')
+                date = pd.to_datetime(re.findall('[0-9]{8}', link)[0])
+                speaker = retrieve_speaker_from_date(date)
 
-            if date == datetime(1996, 1, 30):
-                date = datetime(1996, 1, 31)
-            elif date == datetime(1996, 7, 2):
-                date = datetime(1996, 7, 3)
-            elif date == datetime(1997, 2, 4):
-                date = datetime(1997, 2, 5)
-            elif date == datetime(1997, 7, 1):
-                date = datetime(1997, 7, 2)
-            elif date == datetime(1998, 2, 3):
-                date = datetime(1998, 2, 4)
-            elif date == datetime(1998, 6, 30):
-                date = datetime(1998, 7, 1)
-            elif date == datetime(1999, 2, 2):
-                date = datetime(1999, 2, 3)
-            elif date == datetime(1999, 6, 29):
-                date = datetime(1999, 6, 30)
+                if date == datetime(1996, 1, 30):
+                    date = datetime(1996, 1, 31)
+                elif date == datetime(1996, 7, 2):
+                    date = datetime(1996, 7, 3)
+                elif date == datetime(1997, 2, 4):
+                    date = datetime(1997, 2, 5)
+                elif date == datetime(1997, 7, 1):
+                    date = datetime(1997, 7, 2)
+                elif date == datetime(1998, 2, 3):
+                    date = datetime(1998, 2, 4)
+                elif date == datetime(1998, 6, 30):
+                    date = datetime(1998, 7, 1)
+                elif date == datetime(1999, 2, 2):
+                    date = datetime(1999, 2, 3)
+                elif date == datetime(1999, 6, 29):
+                    date = datetime(1999, 6, 30)
 
-            driver.get(BASE_URL + link)
-            html = driver.page_source
-            soup = BeautifulSoup(html, 'html.parser')
+                driver.get(BASE_URL + link)
+                html = driver.page_source
+                soup = BeautifulSoup(html, 'html.parser')
 
-            article = soup.find('div', class_='col-xs-12 col-sm-8 col-md-9')
-            title = article.find('h3')
+                # TODO: fix the text
+                paragraphs = soup.find_all('p')
+                text = ''
+                for paragraph in paragraphs:
+                    text += paragraph.text.strip()
 
-            # TODO: fix the text
-            paragraphs = soup.find_all('p')
-            text = ''
-            for paragraph in paragraphs:
-                text += paragraph.text.strip()
-
-            all_data.append({
-                'date': date,
-                'speaker': speaker,
-                'title': title,
-                'link': f'{BASE_URL}{link}',
-                'text': text
-            })
+                all_data.append({
+                    'date': date,
+                    'speaker': speaker,
+                    'link': f'{BASE_URL}{link}',
+                    'text': text
+                })
+            except Exception as e:
+                print(e)
+                continue
 
     except Exception as e:
         print(e)
@@ -147,4 +146,5 @@ print("\nCollection completed!")
 driver.close()
 
 df = pd.DataFrame(all_data).drop_duplicates().sort_values('date').reset_index(drop=True)
+df['title'] = 'Minutes of the Federal Open Market Committee'
 df.to_csv('data/textual/fomc_minutes.txt', sep=',', index=False)
