@@ -2,16 +2,17 @@ import pandas as pd
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
 
 BASE_URL = 'https://www.federalreserve.gov'
-
 START_YEAR, END_YEAR = 2006, 2021
 
 all_data = []
 counter = 0
 
 print("Launching webdriver...")
-driver = webdriver.Chrome('chromedriver')
+# driver = webdriver.Chrome('chromedriver')
+driver = webdriver.Chrome(ChromeDriverManager(version="89.0.4389.23").install())
 
 print("Collecting data...")
 for year in range(START_YEAR, END_YEAR + 1):
@@ -68,6 +69,4 @@ print("\nCollection completed!")
 driver.close()
 
 df = pd.DataFrame(all_data).drop_duplicates().sort_values('date').reset_index(drop=True)
-
-# TODO: figure out a way to write to csv with the newline characters
-df.to_csv('data/textual/fomc_speeches.csv', index=False)
+df.to_csv('data/textual/fomc_speeches.txt', sep=',', index=False)

@@ -25,7 +25,7 @@ for indicator in indicators:
         full_data = pd.concat([full_data, df], axis=1)
 
 full_data.columns = list(indicators)
-full_data.to_csv('./data/macro/api_market_data.csv')
+full_data.to_csv('data/macro/api_market_data.csv')
 
 full_data = full_data.ffill()
-full_data.to_csv('./data/macro/api_market_data_filled.csv')
+full_data.to_csv('data/macro/api_market_data_filled.csv')

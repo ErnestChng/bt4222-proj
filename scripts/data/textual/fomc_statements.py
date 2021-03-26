@@ -32,6 +32,8 @@ def retrieve_speaker_from_date(date: datetime) -> str:
     return speaker
 
 
+counter = 0
+
 #### Retrieve FOMC statements from 2016 to 2021 ####
 response = requests.get(STATEMENT_URL)
 html_soup = BeautifulSoup(response.text, 'html.parser')
@@ -39,6 +41,8 @@ contents = html_soup.find_all('a', href=re.compile('^/newsevents/pressreleases/m
 df = pd.DataFrame(columns=['Date', 'Speaker', 'Title', 'Link', 'Text'])
 
 for content in contents:
+    counter += 1
+    print(f"Collecting post #{counter}...")
     link = content.attrs['href']
     date = pd.to_datetime(re.findall('[0-9]{8}', link)[0])
     speaker = retrieve_speaker_from_date(date)
@@ -59,6 +63,8 @@ for year in range(2006, 2015):
     contents = inner_soup.findAll('a', text='Statement')
 
     for content in contents:
+        counter += 1
+        print(f"Collecting post #{counter}...")
         link = content.attrs['href']
         date = pd.to_datetime(re.findall('[0-9]{8}', link)[0])
         speaker = retrieve_speaker_from_date(date)
@@ -72,4 +78,4 @@ for year in range(2006, 2015):
         df.loc[len(df)] = [date, speaker, title, full_link, statement]
 
 df = df.set_index('Date').sort_index(ascending=False)
-df.to_csv('./data/textual/fomc_statements.csv')
+df.to_csv('data/textual/fomc_statements.txt', sep=',', index=False)

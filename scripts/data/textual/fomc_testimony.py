@@ -4,6 +4,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
 
 BASE_URL = 'https://www.federalreserve.gov'
 TESTIMONY_URL = BASE_URL + '/json/ne-testimony.json'
@@ -16,7 +17,8 @@ all_data = []
 counter, len_records = 0, len(records)
 
 print("Launching webdriver...")
-driver = webdriver.Chrome('chromedriver')
+# driver = webdriver.Chrome('chromedriver')
+driver = webdriver.Chrome(ChromeDriverManager(version="89.0.4389.23").install())
 
 print("Collecting data...")
 for record in records:
@@ -51,6 +53,4 @@ print("\nCollection completed!")
 driver.close()
 
 df = pd.DataFrame(all_data).drop_duplicates().sort_values('date').reset_index(drop=True)
-
-# TODO: figure out a way to write to csv with the newline characters
-df.to_csv('data/textual/fomc_testimony.csv', index=False)
+df.to_csv('data/textual/fomc_testimony.txt', sep=',', index=False)

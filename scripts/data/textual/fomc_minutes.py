@@ -4,6 +4,7 @@ from datetime import datetime
 import pandas as pd
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
 
 BASE_URL = 'https://www.federalreserve.gov'
 
@@ -36,7 +37,8 @@ def retrieve_speaker_from_date(date: datetime) -> str:
 
 #### Retrieve minutes from 2014 to 2021 ####
 print("Launching webdriver...")
-driver = webdriver.Chrome('chromedriver')
+# driver = webdriver.Chrome('chromedriver')
+driver = webdriver.Chrome(ChromeDriverManager(version="89.0.4389.23").install())
 
 print("Collecting data...")
 driver.get(CALENDAR_URL)
@@ -145,6 +147,4 @@ print("\nCollection completed!")
 driver.close()
 
 df = pd.DataFrame(all_data).drop_duplicates().sort_values('date').reset_index(drop=True)
-
-# TODO: figure out a way to write to csv with the newline characters
-df.to_csv('data/textual/fomc_minutes.csv', index=False)
+df.to_csv('data/textual/fomc_minutes.txt', sep=',', index=False)
