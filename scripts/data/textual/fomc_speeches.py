@@ -4,69 +4,77 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 
-BASE_URL = 'https://www.federalreserve.gov'
-START_YEAR, END_YEAR = 2006, 2021
 
-all_data = []
-counter = 0
+def retrieve_fomc_speeches() -> pd.DataFrame:
+    print('\nCollecting fomc speeches data...')
 
-print("Launching webdriver...")
-# driver = webdriver.Chrome('chromedriver')
-driver = webdriver.Chrome(ChromeDriverManager(version="89.0.4389.23").install())
+    BASE_URL = 'https://www.federalreserve.gov'
+    START_YEAR, END_YEAR = 2006, 2021
 
-print("Collecting data...")
-for year in range(START_YEAR, END_YEAR + 1):
-    if year >= 2011:
-        speech_url = f'{BASE_URL}/newsevents/speech/{year}-speeches.htm'
-    else:
-        speech_url = f'{BASE_URL}/newsevents/speech/{year}speech.htm'
+    all_data = []
+    counter = 0
 
-    driver.get(speech_url)
+    print("Launching webdriver...")
+    # driver = webdriver.Chrome('chromedriver')
+    driver = webdriver.Chrome(ChromeDriverManager(version="89.0.4389.23").install())
 
-    print(f"\nCollecting from Year {year}...")
-    inner_html = driver.page_source
-    soup = BeautifulSoup(inner_html, 'html.parser')
-    posts = soup.find('div', class_='row eventlist').find_all('div', class_='row')
+    print("Collecting data...")
+    for year in range(START_YEAR, END_YEAR + 1):
+        if year >= 2011:
+            speech_url = f'{BASE_URL}/newsevents/speech/{year}-speeches.htm'
+        else:
+            speech_url = f'{BASE_URL}/newsevents/speech/{year}speech.htm'
 
-    for post in posts:
-        try:
-            counter += 1
-            print(f"Collecting post #{counter}...")
-            date = pd.to_datetime(post.find('time').text)
+        driver.get(speech_url)
 
-            title = post.find('a').text
-            link = post.find('a').get('href')
-            speaker = post.find('p', class_='news__speaker').text
-            location = post.find_all('p')[-2].text
+        print(f"\nCollecting from Year {year}...")
+        inner_html = driver.page_source
+        soup = BeautifulSoup(inner_html, 'html.parser')
+        posts = soup.find('div', class_='row eventlist').find_all('div', class_='row')
 
-            # retrieving text from link
-            post_url = BASE_URL + link
-            driver.get(post_url)
-            inner_html = driver.page_source
-            inner_soup = BeautifulSoup(inner_html, 'html.parser')
+        for post in posts:
+            try:
+                counter += 1
+                print(f"Collecting post #{counter}...")
+                date = pd.to_datetime(post.find('time').text)
 
-            # TODO: fix the text
-            paragraphs = inner_soup.find('div', class_='col-xs-12 col-sm-8 col-md-8').find_all('p')
-            text = ''
-            for paragraph in paragraphs:
-                if not paragraph.find('a'):
-                    text += paragraph.text.strip()
+                title = post.find('a').text
+                link = post.find('a').get('href')
+                speaker = post.find('p', class_='news__speaker').text
+                location = post.find_all('p')[-2].text
 
-            all_data.append({
-                'date': date,
-                'speaker': speaker,
-                'title': title,
-                'location': location,
-                'link': post_url,
-                'text': text
-            })
+                # retrieving text from link
+                post_url = BASE_URL + link
+                driver.get(post_url)
+                inner_html = driver.page_source
+                inner_soup = BeautifulSoup(inner_html, 'html.parser')
 
-        except Exception as e:
-            print(e)
-            continue
+                paragraphs = inner_soup.find('div', class_='col-xs-12 col-sm-8 col-md-8').find_all('p')
+                text = ''
+                for paragraph in paragraphs:
+                    if not paragraph.find('a'):
+                        text += paragraph.text.strip()
 
-print("\nCollection completed!")
-driver.close()
+                all_data.append({
+                    'date': date,
+                    'speaker': speaker,
+                    'title': title,
+                    'location': location,
+                    'link': post_url,
+                    'text': text
+                })
 
-df = pd.DataFrame(all_data).drop_duplicates().sort_values('date').reset_index(drop=True)
-df.to_csv('data/textual/fomc_speeches.txt', sep=',', index=False)
+            except Exception as e:
+                print(e)
+                continue
+
+    print("\nCollection completed!")
+    driver.close()
+
+    df = pd.DataFrame(all_data).drop_duplicates().sort_values('date').reset_index(drop=True)
+
+    return df
+
+
+# df = retrieve_fomc_speeches()
+# df.to_csv('data/textual/fomc_speeches.txt', sep=',', index=False)
