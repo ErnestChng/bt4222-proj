@@ -75,6 +75,5 @@ def retrieve_fomc_speeches() -> pd.DataFrame:
 
     return df
 
-
 # df = retrieve_fomc_speeches()
 # df.to_csv('data/textual/fomc_speeches.txt', sep=',', index=False)
