@@ -3,7 +3,7 @@
 BT4222 Mining Web Data for Business Insights - Effectiveness of Machine Learning and Text Mining Techniques in
 Predicting Fed Rate Movement
 
-## 01 Project Overview
+## 00 Project Overview
 
 ### Introduction
 
@@ -30,24 +30,34 @@ Many attributes result in the decision-making of the Fed Rates, but Natural Lang
 utilized much in this area. We want to find out the effectiveness of FOMC textual data in helping to improve the
 prediction of Fed Rate movement.
 
-## 02 Data Collection
+## 01 Data Collection
 
 Run the following command to scrape data and write it to the respective folders
 
 `python scripts/01_data.py`
 
-### Macro
+### Macro Data
 
-(Description of Macro Data)
+The market data was downloaded using the FRED API, which is a web service that facilitates the retrieval of economic
+data from the Federal Reserve Economic Data (FRED) and Archival Federal Reserve Economic Data (ALFRED) websites hosted
+by the Economic Research Division of the Federal Reserve Bank of St. Louis. Requests could be customized according to
+the data source, release, series and other preferences.
 
-### Textual
+### Textual Data
 
-(Description of FOMC Data)
+Since sentiment analysis is one of the NLP methods that we are looking to apply, our team looked for textual data that
+would be valuable. The FOMC website updates 5 crucial materials after each meeting, namely the meeting statements,
+meeting minutes, press conference transcripts, speeches and testimonies. To retrieve these textual data required for our
+project, we developed python scripts to perform the web-scrape function. We made use of popular web-scraping libraries
+like requests, Selenium to make HTTP requests. BeautifulSoup was subsequently used to parse the data so that the
+relevant data may be extracted from the HTML content.
 
-## 03 Preprocessing
+## 02 Preprocessing
 
-## 04 Exploratory Data Analysis
+`python scripts/02_preprocess.py`
 
-## 05 Feature Engineering
+## 03 Exploratory Data Analysis
 
-## 06 Model Building
+## 04 Feature Engineering
+
+## 05 Model Building
