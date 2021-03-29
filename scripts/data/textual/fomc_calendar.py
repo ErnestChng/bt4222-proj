@@ -9,25 +9,30 @@ from bs4 import BeautifulSoup
 # TODO: refactor this entire code (Ernest)
 
 def retrieve_fomc_calendar() -> pd.DataFrame:
-    print('\nCollecting fomc calendar data...')
+    """
+    Retrieves FOMC calendar from 2006 to now.
 
-    # FOMC website URLs
+    :return: DataFrame representing FOMC calendar.
+    """
+    print('\n==========Collecting fomc calendar data==========')
+
     BASE_URL = 'https://www.federalreserve.gov'
-    CALENDAR_URL = BASE_URL + '/monetarypolicy/fomccalendars.htm'
+    CALENDAR_URL = f'{BASE_URL}/monetarypolicy/fomccalendars.htm'
+
     START_YEAR = 2006
 
     date_list = []
 
-    # Retrieve FOMC Meeting date from current page - from 2015 to 2020
-    r = requests.get(CALENDAR_URL)
-    soup = BeautifulSoup(r.text, 'html.parser')
-    panel_divs = soup.find_all('div', {"class": "panel panel-default"})
+    #### Retrieve FOMC Meeting date from 2015 to 2020 ####
+    response = requests.get(CALENDAR_URL)
+    html_soup = BeautifulSoup(response.text, 'html.parser')
+    contents = html_soup.find_all('div', {"class": "panel panel-default"})
 
-    for panel_div in panel_divs:
-        m_year = panel_div.find('h4').get_text()[:4]
-        m_months = panel_div.find_all('div', {"class": "fomc-meeting__month"})
-        m_dates = panel_div.find_all('div', {"class": "fomc-meeting__date"})
-        print("YEAR: {} - {} meetings found.".format(m_year, len(m_dates)))
+    for content in contents:
+        m_year = content.find('h4').get_text()[:4]
+        m_months = content.find_all('div', {"class": "fomc-meeting__month"})
+        m_dates = content.find_all('div', {"class": "fomc-meeting__date"})
+        print(f'YEAR: {m_year} - {len(m_dates)} meetings found.')
 
         for (m_month, m_date) in zip(m_months, m_dates):
             month_name = m_month.get_text().strip()
@@ -63,16 +68,19 @@ def retrieve_fomc_calendar() -> pd.DataFrame:
 
             date_list.append({"date": meeting_date, "unscheduled": is_unscheduled, "forecast": is_forecast, "confcall": False})
 
-    # Retrieve FOMC Meeting date older than 2015
+    ##### Retrieve FOMC Meeting date from 2006 to 2015 ####
     for year in range(START_YEAR, 2015):
-        hist_url = BASE_URL + '/monetarypolicy/fomchistorical' + str(year) + '.htm'
-        r = requests.get(hist_url)
-        soup = BeautifulSoup(r.text, 'html.parser')
-        if year in (2011, 2012, 2013, 2014):
-            panel_headings = soup.find_all('h5', {"class": "panel-heading"})
+        hist_url = f'{BASE_URL}/monetarypolicy/fomchistorical{str(year)}.htm'
+        response = requests.get(hist_url)
+        html_soup = BeautifulSoup(response.text, 'html.parser')
+
+        if year in [2011, 2012, 2013, 2014]:
+            panel_headings = html_soup.find_all('h5', {"class": "panel-heading"})
         else:
-            panel_headings = soup.find_all('div', {"class": "panel-heading"})
-        print("YEAR: {} - {} meetings found.".format(year, len(panel_headings)))
+            panel_headings = html_soup.find_all('div', {"class": "panel-heading"})
+
+        print(f'YEAR: {year} - {len(panel_headings)} meetings found.')
+
         for panel_heading in panel_headings:
             date_text = panel_heading.get_text().strip()
             regex = r"(January|February|March|April|May|June|July|August|September|October|November|December).*\s(\d*-)*(\d+)\s+(Meeting|Conference Calls?|\(unscheduled\))\s-\s(\d+)"
@@ -92,10 +100,18 @@ def retrieve_fomc_calendar() -> pd.DataFrame:
             meeting_date = datetime.strptime(meeting_date_str, '%Y-%B-%d')
             is_confcall = "Conference Call" in date_text_ext[3]
             is_unscheduled = "unscheduled" in date_text_ext[3]
-            date_list.append({"date": meeting_date, "unscheduled": is_unscheduled, "forecast": False, "confcall": is_confcall})
+
+            date_list.append({
+                'date': meeting_date,
+                'unscheduled': is_unscheduled,
+                'forecast': False,
+                'confcall': is_confcall
+            })
 
     df = pd.DataFrame(date_list).sort_values(by=['date'])
     df.reset_index(drop=True, inplace=True)
+
+    print("==========Done==========\n")
 
     return df
 

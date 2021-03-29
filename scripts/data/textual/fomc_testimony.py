@@ -8,7 +8,12 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 
 def retrieve_fomc_testimony() -> pd.DataFrame:
-    print('\nCollecting fomc testimony data...')
+    """
+    Retrieves FOMC testimonies from 2006 to now.
+
+    :return: DataFrame representing FOMC testimonies
+    """
+    print('\n==========Collecting fomc testimony data==========')
 
     BASE_URL = 'https://www.federalreserve.gov'
     TESTIMONY_URL = BASE_URL + '/json/ne-testimony.json'
@@ -56,6 +61,8 @@ def retrieve_fomc_testimony() -> pd.DataFrame:
     driver.close()
 
     df = pd.DataFrame(all_data).drop_duplicates().sort_values('date').reset_index(drop=True)
+
+    print("==========Done==========\n")
 
     return df
 

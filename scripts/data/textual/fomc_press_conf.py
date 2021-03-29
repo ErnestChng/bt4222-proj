@@ -11,6 +11,8 @@ from bs4 import BeautifulSoup
 # Press Conference Transcripts are in pdf. Need to download pdf before extracting text. Texts are saved to .txt
 # Diff sections bc scrapped from diff url link.
 
+# TODO: Refactor this Jolene
+
 # TODO: Fix the following transcript issues?:
 # NOTE: Following transcripts have issue retrieving text from pdf so .txt version not available:
 # 1. https://www.federalreserve.gov/monetarypolicy/files/FOMC20151028meeting.pdf

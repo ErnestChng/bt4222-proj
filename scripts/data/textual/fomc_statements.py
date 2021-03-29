@@ -6,8 +6,15 @@ import requests
 from bs4 import BeautifulSoup
 
 
+# TODO: Refactor this Jolene
+
 def retrieve_fomc_statements() -> pd.DataFrame:
-    print('\nCollecting fomc statements data...')
+    """
+    Retrieves FOMC statements from 2006 to now.
+
+    :return: DataFrame representing FOMC statements
+    """
+    print('\n==========Collecting fomc statements data==========')
 
     BASE_URL = 'https://www.federalreserve.gov'
     STATEMENT_URL = 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm'
@@ -82,6 +89,8 @@ def retrieve_fomc_statements() -> pd.DataFrame:
 
     df.columns = df.columns.str.lower()
     df = df.drop_duplicates().sort_values('date').reset_index(drop=True)
+
+    print("==========Done==========\n")
 
     return df
 

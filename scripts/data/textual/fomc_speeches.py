@@ -6,7 +6,12 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 
 def retrieve_fomc_speeches() -> pd.DataFrame:
-    print('\nCollecting fomc speeches data...')
+    """
+    Retrieves FOMC speeches from 2006 to today.
+
+    :return: DataFrame representing FOMC speeches.
+    """
+    print('\n==========Collecting fomc speeches data==========')
 
     BASE_URL = 'https://www.federalreserve.gov'
     START_YEAR, END_YEAR = 2006, 2021
@@ -72,6 +77,8 @@ def retrieve_fomc_speeches() -> pd.DataFrame:
     driver.close()
 
     df = pd.DataFrame(all_data).drop_duplicates().sort_values('date').reset_index(drop=True)
+
+    print("==========Done==========\n")
 
     return df
 

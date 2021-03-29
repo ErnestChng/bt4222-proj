@@ -8,7 +8,12 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 
 def retrieve_fomc_minutes() -> pd.DataFrame:
-    print('\nCollecting fomc minutes data...')
+    """
+    Retrieves FOMC minutes from 2006 to today.
+
+    :return: DataFrame representing FOMC minutes.
+    """
+    print('\n==========Collecting fomc minutes data==========')
 
     BASE_URL = 'https://www.federalreserve.gov'
     CALENDAR_URL = f'{BASE_URL}/monetarypolicy/fomccalendars.htm'
@@ -131,8 +136,9 @@ def retrieve_fomc_minutes() -> pd.DataFrame:
     df = pd.DataFrame(all_data).drop_duplicates().sort_values('date').reset_index(drop=True)
     df['title'] = 'Minutes of the Federal Open Market Committee'
 
-    return df
+    print("==========Done==========\n")
 
+    return df
 
 # df = retrieve_fomc_minutes()
 # df.to_csv('data/textual/fomc_minutes.txt', sep=',', index=False)

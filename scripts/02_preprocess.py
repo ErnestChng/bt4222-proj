@@ -1,4 +1,5 @@
 import datetime as dt
+from typing import Optional, Union
 
 import pandas as pd
 
@@ -24,39 +25,29 @@ fomc_calendar.set_index('date', inplace=True)
 fomc_calendar.index = pd.to_datetime(fomc_calendar.index)
 
 
-def get_next_meeting_date(x):
-    """
-    Returns the next 01_data.py meeting date for the given date x, referring to fomc_calendar DataFrame.
-    Usually FOMC Meetings takes two days, so it starts searching from x+2.
-    x should be of datetime type or yyyy-mm-dd format string.
-    """
-    # If x is string, convert to datetime
-    if type(x) is str:
+def get_next_meeting_date(curr_date: Union[str, dt.datetime]) -> Optional[dt.datetime]:
+    if type(curr_date) is str:
         try:
-            x = dt.datetime.strptime(x, '%Y-%m-%d')
-        except:
+            curr_date = dt.datetime.strptime(curr_date, '%Y-%m-%d')
+        except Exception as e:
             return None
 
-    # Add two days to get the day after next
-    x = x + dt.timedelta(days=2)
+    curr_date = curr_date + dt.timedelta(days=2)
 
-    # Just in case, sort fomc_calendar from older to newer
     fomc_calendar.sort_index(ascending=True, inplace=True)
 
-    if fomc_calendar.index[0] > x:
-        # If the date is older than the first FOMC Meeting, do not return any date.
+    if fomc_calendar.index[0] > curr_date:
         return None
     else:
         for i in range(len(fomc_calendar)):
-            if x < fomc_calendar.index[i]:
+            if curr_date < fomc_calendar.index[i]:
                 return fomc_calendar.index[i]
-        # If x is greater than the newest FOMC meeting date, do not return any date.
         return None
 
 
-def reorganize_df(df, doc_type):
+def reorganize_df(df: pd.DataFrame, doc_type: str):
     """
-    Reorganize the loaded dataframe, which has been obrained by FomcGetData for further processing
+    Reorganize the loaded dataframe, which has been obtained by FomcGetData for further processing
         - Add type
         - Add word count
         - Add rate, decision (for meeting documents, None for the others)
@@ -150,8 +141,8 @@ print("Total: {} words in merged text".format(count_train))
 print("Total: {} words in text column of merged text".format(train_df['text'].apply(lambda x: len(x.split())).sum()))
 
 print("Before dropping: ", train_df.shape)
-train_df = train_df.loc[train_df['text'] != ""]
-print("After dropping: ", train_df.shape)
+# train_df = train_df.loc[train_df['text'] != ""]
+# print("After dropping: ", train_df.shape)
 
 train_df = train_df.reset_index()
 train_df.to_csv('data/processed.txt', sep=',', index=False)
