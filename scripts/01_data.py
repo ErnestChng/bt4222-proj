@@ -3,7 +3,7 @@ import time
 from scripts.data.macro.macro_data import retrieve_macro_data
 from scripts.data.textual.fomc_calendar import retrieve_fomc_calendar
 from scripts.data.textual.fomc_minutes import retrieve_fomc_minutes
-# from scripts.data.textual.fomc_press_conf import retrieve_press_conf
+# from scripts.data.textual.fomc_press_conf import retrieve_fomc_press_conf
 from scripts.data.textual.fomc_speeches import retrieve_fomc_speeches
 from scripts.data.textual.fomc_statements import retrieve_fomc_statements
 from scripts.data.textual.fomc_testimony import retrieve_fomc_testimony
@@ -13,7 +13,7 @@ if __name__ == "__main__":
 
     #### Scraping FOMC data ####
     minutes = retrieve_fomc_minutes()
-    # press_conf = retrieve_press_conf()
+    # press_conf = retrieve_fomc_press_conf() # requires pdf files
     speeches = retrieve_fomc_speeches()
     statements = retrieve_fomc_statements()
     testimony = retrieve_fomc_testimony()
