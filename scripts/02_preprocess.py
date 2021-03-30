@@ -1,10 +1,7 @@
 import datetime as dt
-import os
 from typing import Optional, Union
 
 import pandas as pd
-
-os.chdir('/Users/ernestchng/PycharmProjects/bt4222-proj')
 
 
 def preprocess() -> pd.DataFrame:
