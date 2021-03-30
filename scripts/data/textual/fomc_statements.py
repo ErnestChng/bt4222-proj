@@ -94,5 +94,7 @@ def retrieve_fomc_statements() -> pd.DataFrame:
 
     return df
 
-# df = retrieve_fomc_statements()
-# df.to_csv('data/textual/fomc_statements.txt', sep=',', index=False)
+
+# if __name__ == '__main__':
+#     df = retrieve_fomc_statements()
+#     df.to_csv('data/textual/fomc_statements.txt', sep=',', index=False)

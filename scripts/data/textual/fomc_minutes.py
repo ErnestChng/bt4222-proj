@@ -140,5 +140,7 @@ def retrieve_fomc_minutes() -> pd.DataFrame:
 
     return df
 
-# df = retrieve_fomc_minutes()
-# df.to_csv('data/textual/fomc_minutes.txt', sep=',', index=False)
+
+# if __name__ == '__main__':
+#     df = retrieve_fomc_minutes()
+#     df.to_csv('data/textual/fomc_minutes.txt', sep=',', index=False)

@@ -66,5 +66,6 @@ def retrieve_fomc_testimony() -> pd.DataFrame:
 
     return df
 
-# df = retrieve_fomc_testimony()
-# df.to_csv('data/textual/fomc_testimony.txt', sep=',', index=False)
+# if __name__ == '__main__':
+#     df = retrieve_fomc_testimony()
+#     df.to_csv('data/textual/fomc_testimony.txt', sep=',', index=False)

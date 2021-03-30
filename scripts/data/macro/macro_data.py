@@ -32,20 +32,24 @@ def retrieve_macro_data() -> pd.DataFrame():
 
     for indicator, name in INDICATORS.items():
         print(f'Indicator: {indicator}, Name: {name}')
-        df = pd.DataFrame(fred.get_series(indicator, observation_start=START_DATE))
+
+        data = fred.get_series(indicator, observation_start=START_DATE).rename(indicator)
+        df = pd.DataFrame(data)
 
         if full_data.empty:
             full_data = df
         else:
             full_data = pd.concat([full_data, df], axis=1)
 
-    full_data.columns = list(INDICATORS.keys())
-
     print("==========Done==========\n")
+
+    full_data = full_data.rename_axis('date').reset_index()
 
     return full_data
 
-# df = retrieve_macro_data()
-# df.to_csv('data/macro/macro_data.csv')
-# df_filled = df.ffill()
-# df_filled.to_csv('data/macro/macro_data_filled.csv')
+
+if __name__ == '__main__':
+    df = retrieve_macro_data()
+    df.to_csv('data/macro/macro.csv', index=False)
+    df_filled = df.ffill()
+    df_filled.to_csv('data/macro/macro_filled.csv', index=False)
