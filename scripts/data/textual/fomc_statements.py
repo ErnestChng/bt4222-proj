@@ -6,8 +6,6 @@ import requests
 from bs4 import BeautifulSoup
 
 
-# TODO: Refactor this Jolene
-
 def retrieve_fomc_statements() -> pd.DataFrame:
     """
     Retrieves FOMC statements from 2006 to now.
@@ -42,35 +40,16 @@ def retrieve_fomc_statements() -> pd.DataFrame:
 
         return speaker
 
-    counter = 0
+    def extract_post(df: pd.DataFrame, contents: list) -> pd.DataFrame:
+        """
+        Extracts details from Statement urls such as date, speaker, title, url and statement.
 
-    #### Retrieve FOMC statements from 2016 to 2021 ####
-    response = requests.get(STATEMENT_URL)
-    html_soup = BeautifulSoup(response.text, 'html.parser')
-    contents = html_soup.find_all('a', href=re.compile('^/newsevents/pressreleases/monetary\d{8}[ax].htm'))
-    df = pd.DataFrame(columns=['Date', 'Speaker', 'Title', 'Link', 'Text'])
+        :param df: DataFrame of Statements
+        :param contents: List of Statement urls enclosed by <a> tags
+        :return: DataFrame of Statements
+        """
 
-    for content in contents:
-        counter += 1
-        print(f"Collecting post #{counter}...")
-        link = content.attrs['href']
-        date = pd.to_datetime(re.findall('[0-9]{8}', link)[0])
-        speaker = get_speaker(date)
-
-        full_link = BASE_URL + link
-        inner_soup = BeautifulSoup(requests.get(full_link).text, 'html.parser')
-        details = inner_soup.find('div', id='article')
-        title = details.find('h3', class_='title').text
-        statement = details.find('div', class_='col-xs-12 col-sm-8 col-md-8').text.strip().replace('\n', ' ')
-
-        df.loc[len(df)] = [date, speaker, title, full_link, statement]
-
-    #### Retrieve minutes from 2006 to 2015 ####
-    for year in range(2006, 2015):
-        statement_url = BASE_URL + '/monetarypolicy/fomchistorical' + str(year) + '.htm'
-        response = requests.get(statement_url)
-        inner_soup = BeautifulSoup(response.text, 'html.parser')
-        contents = inner_soup.findAll('a', text='Statement')
+        counter = 0
 
         for content in contents:
             counter += 1
@@ -87,6 +66,25 @@ def retrieve_fomc_statements() -> pd.DataFrame:
 
             df.loc[len(df)] = [date, speaker, title, full_link, statement]
 
+        return df
+
+    #### Retrieve FOMC statements from 2016 to 2021 ####
+    print('Retrieving statements from 2016 - 2021...')
+    response = requests.get(STATEMENT_URL)
+    html_soup = BeautifulSoup(response.text, 'html.parser')
+    contents = html_soup.find_all('a', href=re.compile('^/newsevents/pressreleases/monetary\d{8}[ax].htm'))
+    df = pd.DataFrame(columns=['Date', 'Speaker', 'Title', 'Link', 'Text'])
+    df = extract_post(df, contents)
+
+    #### Retrieve FOMC statements from 2006 to 2015 ####
+    for year in range(2006, 2015):
+        print(f'Retrieving statements for {year}...')
+        statement_url = BASE_URL + '/monetarypolicy/fomchistorical' + str(year) + '.htm'
+        response = requests.get(statement_url)
+        inner_soup = BeautifulSoup(response.text, 'html.parser')
+        contents = inner_soup.findAll('a', text='Statement')
+        df = extract_post(df, contents)
+
     df.columns = df.columns.str.lower()
     df = df.drop_duplicates().sort_values('date').reset_index(drop=True)
 
@@ -95,6 +93,6 @@ def retrieve_fomc_statements() -> pd.DataFrame:
     return df
 
 
-# if __name__ == '__main__':
-#     df = retrieve_fomc_statements()
-#     df.to_csv('data/textual/fomc_statements.txt', sep=',', index=False)
+if __name__ == '__main__':
+    df = retrieve_fomc_statements()
+    df.to_csv('data/textual/fomc_statements.txt', sep=',', index=False)
