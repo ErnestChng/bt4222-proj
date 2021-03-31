@@ -17,6 +17,7 @@ from bs4 import BeautifulSoup
 BASE_URL = 'https://www.federalreserve.gov'
 STATEMENT_URL = 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm'
 
+
 def retrieve_fomc_press_conf() -> pd.DataFrame:
     """
         Retrieves FOMC press conference transcripts from 2006 to now.
@@ -47,7 +48,6 @@ def retrieve_fomc_press_conf() -> pd.DataFrame:
                 speaker = chair
 
         return speaker
-
 
     def combine_paragraphs(paragraphs: list) -> str:
         """
@@ -108,20 +108,20 @@ def retrieve_fomc_press_conf() -> pd.DataFrame:
 
             try:
                 full_script = parse_text_from_pdf(pdf_filepath)
-                df.loc[len(df)] = [date, speaker, full_conf_link, full_script]
+                title = 'Press Conference Transcripts'
+                df.loc[len(df)] = [date, speaker, full_conf_link, full_script, title]
 
             except Exception as e:
                 print(e)
                 continue
         return df
 
-
     #### Retrieve fomc Press Conference Transcripts from 2016 to 2021 ####
     print('Retrieving transcripts from 2016 - 2021...')
     r = requests.get(STATEMENT_URL)
     soup = BeautifulSoup(r.text, 'html.parser')
     presconfs = soup.find_all('a', href=re.compile('^/monetarypolicy/fomcpresconf\d{8}.htm'))
-    df = pd.DataFrame(columns=['date', 'speaker', 'link', 'text'])
+    df = pd.DataFrame(columns=['date', 'speaker', 'link', 'text', 'title'])
 
     # Get pdf url from press conference url
     counter = 0
@@ -134,7 +134,6 @@ def retrieve_fomc_press_conf() -> pd.DataFrame:
         soup_presconf = BeautifulSoup(response.text, 'html.parser')
         contents = soup_presconf.find_all('a', href=re.compile('^/mediacenter/files/FOMCpresconf\d{8}.pdf'))
         df = parse_contents(df, contents)
-
 
     #### Retrieve fomc Press Conference Transcripts from 2006 to 2015 ####
     print('Retrieving transcripts from 2006 - 2015...')
@@ -154,4 +153,4 @@ def retrieve_fomc_press_conf() -> pd.DataFrame:
 
 # if __name__ == '__main__':
 #     df = retrieve_fomc_press_conf()
-#     df.to_csv('data/meta/fomc_press_conf.txt', header=True, index=False, sep=',')
+#     df.to_csv('data/textual/fomc_press_conf.txt', sep=',', index=False, )
