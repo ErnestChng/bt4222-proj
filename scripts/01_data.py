@@ -103,11 +103,6 @@ if __name__ == "__main__":
     statements = pd.read_csv('data/textual/fomc_statements.txt', delimiter=',')
     testimony = pd.read_csv('data/textual/fomc_testimony.txt', delimiter=',')
 
-    # TODO: shift this operations into fomc_press_conf (Jolene)
-    press_conf.columns = press_conf.columns.str.lower()
-    press_conf = press_conf.sort_values('date', ascending=False)
-    press_conf.reset_index(drop=True, inplace=True)
-
     macro = pd.read_csv('data/macro/macro_filled.csv')
     macro.set_index('date', inplace=True)
     macro.index = pd.to_datetime(macro.index)
