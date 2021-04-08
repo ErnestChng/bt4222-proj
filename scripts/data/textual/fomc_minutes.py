@@ -95,7 +95,7 @@ def retrieve_fomc_minutes() -> pd.DataFrame:
             driver.get(minutes_url)
             html = driver.page_source
             soup = BeautifulSoup(html, 'html.parser')
-            contents = soup.find_all('a', href=re.compile('(^/monetarypolicy/fomcminutes|^/01_data.py/minutes|^/01_data.py/MINUTES)'))
+            contents = soup.find_all('a', href=re.compile('(^/monetarypolicy/fomcminutes|^/01_Data.py/minutes|^/01_Data.py/MINUTES)'))
 
             for content in contents:
                 try:

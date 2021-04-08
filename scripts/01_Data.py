@@ -1,5 +1,6 @@
 # import time
 
+import numpy as np
 import pandas as pd
 
 
@@ -61,11 +62,23 @@ def merge_data(minutes: pd.DataFrame,
             for text in text_rows.loc[text_rows['type'] == doc_type]['text']:
                 merged_text += " " + text
             macro.loc[date, doc_type] = merged_text
+
+            # to add in speaker for deeper analysis
+            speaker = text_rows.loc[text_rows['type'] == doc_type, 'speaker'].dropna()
+            if len(speaker) != 0:
+                macro.loc[date, f'{doc_type}_speaker'] = '[next]'.join(list(speaker))
+            else:
+                macro.loc[date, f'{doc_type}_speaker'] = np.nan
+
             merged_text_all += merged_text
 
         macro.loc[date, 'text'] = merged_text_all
 
     macro = macro.reset_index()
+
+    # to add in speaker for deeper analysis
+    macro['speeches_speaker'] = macro['speeches_speaker'].replace(np.nan, '').apply(lambda x: x.split('[next]'))
+    macro['testimony_speaker'] = macro['testimony_speaker'].replace(np.nan, '').apply(lambda x: x.split('[next]'))
 
     return macro
 
