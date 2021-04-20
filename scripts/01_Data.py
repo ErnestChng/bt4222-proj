@@ -5,13 +5,13 @@ import time
 import numpy as np
 import pandas as pd
 
-from scripts.data.macro.macro_data import retrieve_macro_data
-from scripts.data.textual.fomc_calendar import retrieve_fomc_calendar
-from scripts.data.textual.fomc_minutes import retrieve_fomc_minutes
-from scripts.data.textual.fomc_press_conf import retrieve_fomc_press_conf
-from scripts.data.textual.fomc_speeches import retrieve_fomc_speeches
-from scripts.data.textual.fomc_statements import retrieve_fomc_statements
-from scripts.data.textual.fomc_testimony import retrieve_fomc_testimony
+from data.macro.macro_data import retrieve_macro_data
+from data.textual.fomc_calendar import retrieve_fomc_calendar
+from data.textual.fomc_minutes import retrieve_fomc_minutes
+from data.textual.fomc_press_conf import retrieve_fomc_press_conf
+from data.textual.fomc_speeches import retrieve_fomc_speeches
+from data.textual.fomc_statements import retrieve_fomc_statements
+from data.textual.fomc_testimony import retrieve_fomc_testimony
 
 
 def merge_data(minutes: pd.DataFrame,
@@ -48,11 +48,6 @@ def merge_data(minutes: pd.DataFrame,
     combined = combined.reset_index(drop=True)
     combined['date'] = pd.to_datetime(combined['date'])
     doc_types = combined['type'].unique()
-
-    print(f'macro: {macro.shape}')
-    # reshape macro data to monthly
-    macro = macro.resample("M").mean()
-    print(f'macro after reshaping: {macro.shape}')
 
     for i in range(len(macro) - 1):
         date, next_date = macro.index[i], macro.index[i + 1]
@@ -128,7 +123,7 @@ if __name__ == "__main__":
         statements = pd.read_csv('data/textual/fomc_statements.txt', delimiter=',')
         testimony = pd.read_csv('data/textual/fomc_testimony.txt', delimiter=',')
 
-        macro = pd.read_csv('data/macro/macro_filled.csv')
+        macro = pd.read_csv('data/macro/macro_monthly.csv')
         macro.set_index('date', inplace=True)
         macro.index = pd.to_datetime(macro.index)
 

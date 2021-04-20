@@ -50,6 +50,6 @@ def retrieve_macro_data() -> pd.DataFrame():
 
 if __name__ == '__main__':
     df = retrieve_macro_data()
-    df.to_csv('data/macro/macro.csv', index=False)
-    df_filled = df.ffill()
-    df_filled.to_csv('data/macro/macro_filled.csv', index=False)
+    df.to_csv('data/macro/macro_daily.csv', index=False)
+    df_monthly = df.set_index('date').resample('M').last().interpolate().reset_index()
+    df_monthly.to_csv('data/macro/macro_monthly.csv', index=False)
