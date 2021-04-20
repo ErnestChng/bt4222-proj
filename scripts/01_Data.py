@@ -1,15 +1,17 @@
-# import time
+import argparse
+import sys
+import time
 
 import numpy as np
 import pandas as pd
 
-
-# from scripts.data.textual.fomc_calendar import retrieve_fomc_calendar
-# from scripts.data.textual.fomc_minutes import retrieve_fomc_minutes
-# # from scripts.data.textual.fomc_press_conf import retrieve_fomc_press_conf
-# from scripts.data.textual.fomc_speeches import retrieve_fomc_speeches
-# from scripts.data.textual.fomc_statements import retrieve_fomc_statements
-# from scripts.data.textual.fomc_testimony import retrieve_fomc_testimony
+from scripts.data.macro.macro_data import retrieve_macro_data
+from scripts.data.textual.fomc_calendar import retrieve_fomc_calendar
+from scripts.data.textual.fomc_minutes import retrieve_fomc_minutes
+from scripts.data.textual.fomc_press_conf import retrieve_fomc_press_conf
+from scripts.data.textual.fomc_speeches import retrieve_fomc_speeches
+from scripts.data.textual.fomc_statements import retrieve_fomc_statements
+from scripts.data.textual.fomc_testimony import retrieve_fomc_testimony
 
 
 def merge_data(minutes: pd.DataFrame,
@@ -84,41 +86,51 @@ def merge_data(minutes: pd.DataFrame,
 
 
 if __name__ == "__main__":
-    # start_time = time.time()
-    #
-    # #### Scraping FOMC data ####
-    # minutes = retrieve_fomc_minutes()
-    # # press_conf = retrieve_fomc_press_conf() # requires pdf files
-    # speeches = retrieve_fomc_speeches()
-    # statements = retrieve_fomc_statements()
-    # testimony = retrieve_fomc_testimony()
-    # calendar = retrieve_fomc_calendar()
-    #
-    # #### Retrieving Macro data ####
-    # # macro = retrieve_macro_data()
-    #
-    # # #### Writing data #### (uncomment if you want to rewrite current files)
-    # # minutes.to_csv('data/textual/fomc_minutes.txt', sep=',', index=False)
-    # # # press_conf.to_csv('data/textual/fomc_press_conf.txt', sep=',', index=False)
-    # # speeches.to_csv('data/textual/fomc_speeches.txt', sep=',', index=False)
-    # # statements.to_csv('data/textual/fomc_statements.txt', sep=',', index=False)
-    # # testimony.to_csv('data/textual/fomc_testimony.txt', sep=',', index=False)
-    # # calendar.to_csv('data/textual/fomc_calendar.txt', sep=',', index=False)
-    # # macro.to_csv('data/macro/macro_data.csv')
-    # # macro_ffill = macro.ffill()  # forward-filling data
-    # # macro_ffill.to_csv('data/macro/macro_data_filled.csv')
-    #
-    # print(f"Time taken for data collection: {time.time() - start_time}")
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-t", "--type", required=True, help="Please specify 'overwrite' or 'merge'")
+    args = vars(ap.parse_args())
 
-    minutes = pd.read_csv('data/textual/fomc_minutes.txt', delimiter=',')
-    press_conf = pd.read_csv('data/textual/fomc_press_conf.txt', delimiter=',')
-    speeches = pd.read_csv('data/textual/fomc_speeches.txt', delimiter=',')
-    statements = pd.read_csv('data/textual/fomc_statements.txt', delimiter=',')
-    testimony = pd.read_csv('data/textual/fomc_testimony.txt', delimiter=',')
+    types = ('overwrite', 'merge')
 
-    macro = pd.read_csv('data/macro/macro_filled.csv')
-    macro.set_index('date', inplace=True)
-    macro.index = pd.to_datetime(macro.index)
+    if args['type'] not in types:
+        print("Please specify either 'overwrite' or 'merge' with the tag -t")
+        sys.exit(1)
 
-    raw_data = merge_data(minutes, press_conf, speeches, statements, testimony, macro)
-    raw_data.to_csv('data/raw_data.txt', sep=',', index=False)
+    if args['type'] == 'overwrite':
+        start_time = time.time()
+        #### Scraping FOMC data ####
+        minutes = retrieve_fomc_minutes()
+        press_conf = retrieve_fomc_press_conf()  # requires pdf files
+        speeches = retrieve_fomc_speeches()
+        statements = retrieve_fomc_statements()
+        testimony = retrieve_fomc_testimony()
+        calendar = retrieve_fomc_calendar()
+
+        #### Retrieving Macro data ####
+        macro = retrieve_macro_data()
+
+        #### Writing data #### (uncomment if you want to rewrite current files)
+        minutes.to_csv('data/textual/fomc_minutes.txt', sep=',', index=False)
+        # press_conf.to_csv('data/textual/fomc_press_conf.txt', sep=',', index=False)
+        speeches.to_csv('data/textual/fomc_speeches.txt', sep=',', index=False)
+        statements.to_csv('data/textual/fomc_statements.txt', sep=',', index=False)
+        testimony.to_csv('data/textual/fomc_testimony.txt', sep=',', index=False)
+        calendar.to_csv('data/textual/fomc_calendar.txt', sep=',', index=False)
+        macro.to_csv('data/macro/macro_data.csv')
+        macro_ffill = macro.ffill()  # forward-filling data
+        macro_ffill.to_csv('data/macro/macro_data_filled.csv')
+
+        print(f"Time taken for data collection: {time.time() - start_time}")
+    else:  # merge
+        minutes = pd.read_csv('data/textual/fomc_minutes.txt', delimiter=',')
+        press_conf = pd.read_csv('data/textual/fomc_press_conf.txt', delimiter=',')
+        speeches = pd.read_csv('data/textual/fomc_speeches.txt', delimiter=',')
+        statements = pd.read_csv('data/textual/fomc_statements.txt', delimiter=',')
+        testimony = pd.read_csv('data/textual/fomc_testimony.txt', delimiter=',')
+
+        macro = pd.read_csv('data/macro/macro_filled.csv')
+        macro.set_index('date', inplace=True)
+        macro.index = pd.to_datetime(macro.index)
+
+        raw_data = merge_data(minutes, press_conf, speeches, statements, testimony, macro)
+        raw_data.to_csv('data/raw_data.txt', sep=',', index=False)
