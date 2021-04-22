@@ -102,7 +102,8 @@ if __name__ == "__main__":
         calendar = retrieve_fomc_calendar()
 
         #### Retrieving Macro data ####
-        macro = retrieve_macro_data()
+        macro_daily = retrieve_macro_data()
+        macro_monthly = macro_daily.set_index('date').resample('M').last().interpolate().reset_index()
 
         #### Writing data #### (uncomment if you want to rewrite current files)
         minutes.to_csv('data/textual/fomc_minutes.txt', sep=',', index=False)
@@ -111,9 +112,8 @@ if __name__ == "__main__":
         statements.to_csv('data/textual/fomc_statements.txt', sep=',', index=False)
         testimony.to_csv('data/textual/fomc_testimony.txt', sep=',', index=False)
         calendar.to_csv('data/textual/fomc_calendar.txt', sep=',', index=False)
-        macro.to_csv('data/macro/macro_data.csv')
-        macro_ffill = macro.ffill()  # forward-filling data
-        macro_ffill.to_csv('data/macro/macro_data_filled.csv')
+        macro_daily.to_csv('data/macro/macro_daily.csv')
+        macro_monthly.to_csv('data/macro/macro_monthly.csv')
 
         print(f"Time taken for data collection: {time.time() - start_time}")
     else:  # merge
