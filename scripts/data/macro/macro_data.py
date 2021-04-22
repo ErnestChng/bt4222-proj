@@ -4,7 +4,7 @@ from fredapi import Fred
 
 def retrieve_macro_data() -> pd.DataFrame():
     """
-    Retrieves macro data using FRED api from 2006 to today.
+    Retrieves macro data using FRED api from 01 Jan 2006 to 28 Feb 2021.
 
     :return: DataFrame representing macro data.
     """
@@ -44,10 +44,13 @@ def retrieve_macro_data() -> pd.DataFrame():
 
     print("==========Done==========\n")
 
-    full_data = full_data.rename_axis('date').reset_index()
-
     # resample daily data to monthly
-    full_data = full_data.set_index('date').resample('M').last().interpolate().reset_index()
+    full_data = full_data \
+        .resample('M') \
+        .last() \
+        .interpolate() \
+        .rename_axis('date') \
+        .reset_index()
 
     return full_data
 

@@ -25,7 +25,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if args['type'] == 'overwrite':
+        print('\n==========Starting the scraping process==========')
         start_time = time.time()
+
         #### Scraping FOMC data ####
         minutes = retrieve_fomc_minutes()
         press_conf = retrieve_fomc_press_conf()  # requires pdf files
@@ -33,21 +35,22 @@ if __name__ == "__main__":
         statements = retrieve_fomc_statements()
         testimony = retrieve_fomc_testimony()
         calendar = retrieve_fomc_calendar()
-
         #### Retrieving Macro data ####
         macro = retrieve_macro_data()
 
-        #### Writing data #### (uncomment if you want to rewrite current files)
+        #### Writing data ####
         minutes.to_csv('data/textual/fomc_minutes.txt', sep=',', index=False)
-        # press_conf.to_csv('data/textual/fomc_press_conf.txt', sep=',', index=False)
+        press_conf.to_csv('data/textual/fomc_press_conf.txt', sep=',', index=False)
         speeches.to_csv('data/textual/fomc_speeches.txt', sep=',', index=False)
         statements.to_csv('data/textual/fomc_statements.txt', sep=',', index=False)
         testimony.to_csv('data/textual/fomc_testimony.txt', sep=',', index=False)
         calendar.to_csv('data/textual/fomc_calendar.txt', sep=',', index=False)
         macro.to_csv('data/macro/macro.csv')
 
+        print("==========Done==========\n")
         print(f"Time taken for data collection: {time.time() - start_time}")
-    else:  # merge
+    else:  # merge existing csv files
+        print('\n==========Starting the merging process==========')
         minutes = pd.read_csv('data/textual/fomc_minutes.txt', delimiter=',')
         press_conf = pd.read_csv('data/textual/fomc_press_conf.txt', delimiter=',')
         speeches = pd.read_csv('data/textual/fomc_speeches.txt', delimiter=',')
@@ -60,3 +63,4 @@ if __name__ == "__main__":
 
         raw_data = merge_data(minutes, press_conf, speeches, statements, testimony, macro)
         raw_data.to_csv('data/raw_data.txt', sep=',', index=False)
+        print("==========Done==========\n")
