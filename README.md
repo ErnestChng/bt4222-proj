@@ -32,9 +32,15 @@ prediction of Fed Rate movement.
 
 ## 01 Data Collection
 
-Run the following command to scrape data and write it to the respective folders
+Run the following command to scrape data and write it to the respective folders.
 
-`python scripts/01_data.py`
+*Note: Running this will overwrite existing files, so only run this if you are sure you want to overwrite the files.*
+
+`python scripts/01_Data.py -t overwrite`
+
+Run the following command to merge existing data.
+
+`python scripts/01_Data.py -t merge`
 
 ### Macro Data
 
@@ -52,12 +58,26 @@ project, we developed python scripts to perform the web-scrape function. We made
 like requests, Selenium to make HTTP requests. BeautifulSoup was subsequently used to parse the data so that the
 relevant data may be extracted from the HTML content.
 
-## 02 Preprocessing
+## 02 Preprocessing with Exploratory Data Analysis (EDA)
 
-`python scripts/02_preprocess.py`
+*WIP*
 
-## 03 Exploratory Data Analysis
+## 03 Feature Engineering with LDA Topic Modelling
 
-## 04 Feature Engineering
+*WIP*
 
-## 05 Model Building
+## 04 Feature Engineering with FinBert Sentiment Analysis
+
+*WIP*
+
+## 05 Baseline Macro Classification
+
+*WIP*
+
+## 06 Final Model
+
+*WIP*
+
+## 07 Feature Engineering Macro with Final Model
+
+*WIP*
