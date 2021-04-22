@@ -11,8 +11,8 @@ def retrieve_macro_data() -> pd.DataFrame():
     print('\n==========Collecting macro data==========')
 
     INDICATORS = {
-        'DFEDTARL': 'Federal Funds Target Range - lower bound',
-        'DFEDTARU': 'Federal Funds Target Range - upper bound',
+        # 'DFEDTARL': 'Federal Funds Target Range - lower bound',
+        # 'DFEDTARU': 'Federal Funds Target Range - upper bound',
         'GDPC1': 'Real GDP',
         'CPIAUCSL': 'Consumer Price Index (CPI)',
         'UNRATE': 'Unemployment Rate',
@@ -24,6 +24,7 @@ def retrieve_macro_data() -> pd.DataFrame():
     }
 
     START_DATE = '1/1/2006'
+    END_DATE = '28/2/2021'
 
     API_KEY = '2fb48248f0ce3781c82ffca58fecfb36'
     fred = Fred(api_key=API_KEY)
@@ -33,7 +34,7 @@ def retrieve_macro_data() -> pd.DataFrame():
     for indicator, name in INDICATORS.items():
         print(f'Indicator: {indicator}, Name: {name}')
 
-        data = fred.get_series(indicator, observation_start=START_DATE).rename(indicator)
+        data = fred.get_series(indicator, observation_start=START_DATE, observation_end=END_DATE).rename(indicator)
         df = pd.DataFrame(data)
 
         if full_data.empty:
@@ -45,11 +46,12 @@ def retrieve_macro_data() -> pd.DataFrame():
 
     full_data = full_data.rename_axis('date').reset_index()
 
+    # resample daily data to monthly
+    full_data = full_data.set_index('date').resample('M').last().interpolate().reset_index()
+
     return full_data
 
 
 if __name__ == '__main__':
-    df = retrieve_macro_data()
-    df.to_csv('data/macro/macro_daily.csv', index=False)
-    df_monthly = df.set_index('date').resample('M').last().interpolate().reset_index()
-    df_monthly.to_csv('data/macro/macro_monthly.csv', index=False)
+    macro = retrieve_macro_data()
+    macro.to_csv('data/macro/macro.csv', index=False)
