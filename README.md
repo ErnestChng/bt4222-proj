@@ -1,4 +1,4 @@
-# BT4222 Project
+# BT4222 Group 10 Project
 
 BT4222 Mining Web Data for Business Insights
 
@@ -83,6 +83,8 @@ macroeconomic indicators – Real GDP, Consumer Price Index (CPI), Unemployment 
 Real Retail and Food Services Sales, Federal Debt, CBOE Volatility Index (VIX) that were commonly used to analyse a
 country’s economic situation, along with the Effective Federal Funds Rate.
 
+FRED API: https://fred.stlouisfed.org/docs/api/fred/
+
 ### Textual Data
 
 Since sentiment analysis is one of the NLP methods that we are looking to apply, our team looked for textual data that
@@ -95,10 +97,20 @@ required for our project, we developed python scripts to perform the web-scrape 
 web-scraping libraries like Requests and Selenium to make HTTP requests and launch web drivers respectively.
 BeautifulSoup was used in tandem to parse the data, allowing us to extract the relevant data from the HTML content.
 
+FOMC website: https://www.federalreserve.gov/monetarypolicy/fomc.htm
+
 ## 02 Preprocessing with Exploratory Data Analysis (EDA)
 
 In this notebook, we conduct some preliminary preprocessing of textual data and explore that data that was collected in
 01_Data.py.
+
+Inputs:
+
+- (local) ../data/raw_data.txt or (dropbox) https://www.dropbox.com/s/l0y4g1t96ry4eyn/raw_data.txt?dl=1
+
+Outputs:
+
+- None
 
 ### Macroeconomic data
 
@@ -130,22 +142,168 @@ In this notebook, we conduct some preliminary preprocessing of textual data and 
 
 ## 03 Feature Engineering with LDA Topic Modelling
 
-*WIP*
+In this notebook, we preprocess the textual data and explore the use of LDA Topic Modelling to feature engineer new
+columns.
+
+Inputs:
+
+- (local) ../data/raw_data.txt or (dropbox) https://www.dropbox.com/s/l0y4g1t96ry4eyn/raw_data.txt?dl=1
+
+Outputs:
+
+- ../data/text_features/lda.csv
+
+Process:
+
+- Text Preprocessing
+    - Removal of punctuation
+    - Lower-casing and stripping of whitespace
+    - Removing integers
+    - Removal of stopwords
+    - Tokenizing
+    - Bi-grams
+    - Lemmatisation
+- LDA Topic Modelling
+    - Train test split
+    - Data transformation
+    - Building the baseline LDA model
+    - Using c_v Ccoherence Score to evaluate LDA topic model performance
+    - Hyperparameter Tuning (Grid Search)
+    - Visualisation of topics
+    - Feature engineering
+
+#### Screenshot of Topic 2 of LDA Topic Modelling
+
+![photo_name](photos/03_LDA_topic.png)
 
 ## 04 Feature Engineering with FinBert Sentiment Analysis
 
-*WIP*
+In this notebook, we also preprocess the textual data and explore the use of both Naive Bayes classifier and FinBert to
+generate sentiments from the textual data in order to feature engineer new columns.
+
+Inputs:
+
+- (local) ../data/raw_data.txt or (dropbox) https://www.dropbox.com/s/l0y4g1t96ry4eyn/raw_data.txt?dl=1
+
+Outputs:
+
+- data/text_features/sentiments.csv
+
+Process:
+
+- Creating a Bert classification model with pretrained FinBert weights
+- Comparing the performance with a Naive Bayes classifier that was pre-trained on a 10,000 analyst sentiment datatset
+- Text Summarization using LexRank
+- Visualisation of sentiment scores over time
+
+#### Sentiment Scores by Month
+
+![photo_name](photos/04_finbert_sentiments.png)
 
 ## 05 Baseline Macro Classification
 
-*WIP*
+In this notebook, we will build a baseline model that makes use of solely macroeconomic data (7 columns) for
+classification.
+
+Inputs:
+
+- ../data/macro/macro.csv
+
+Outputs:
+
+- ../data/target/target.csv
+
+Process:
+
+- Preprocessing of macroeconomic data
+- Train test split
+- Feature scaling
+- Creating the baseline model
+- Evaluation of model using F1-weighted score
 
 ## 06 Final Model
 
-*WIP*
+In this notebook, we will make use of the macro inputs, N topic columns generated from LDA topic modelling, FinBert
+sentiment columns. Normalisation of numerical data is conducted. Feature selection is subsequently conducted to select
+important features. After which, we stack 3 different classifiers - Decision Tree, Logistic Regression, Support Vector
+Machine in Level 1 to create a new training (predictions) which are used as the inputs for Level 2 stacking which uses a
+Decision Tree or Logistic Regression model. The resultant model is evaluated against the baseline model in 05 Notebook
+using F1-weighted score.
+
+Inputs:
+
+- ../data/macro/macro.csv
+- ../data/target/target.csv
+- ../data/text_features/lda.csv
+- ../data/text_features/sentiments.csv
+
+Outputs:
+
+- ../data/combined/combined.csv
+
+Process:
+
+- Feature normalisation
+- Feature selection
+    - Variance inflation factor
+    - Random forest feature importance
+    - Information gain ratio
+- Stacking classifiers
+- TimeSeriesSplit Cross-Validation
+
+#### Flowchart for 06 Notebook
+
+![photo_name](photos/06_model_flow_chart.jpg)
 
 ## 07 Feature Engineering Macro with Final Model
 
-*WIP*
+In this notebook, we will feature engineer our macro inputs to create new columns such as percentage difference, simple
+moving averages, exponentially weighted moving averages. The same steps in 06 Notebook will be applied here.
+
+Inputs:
+
+- ../data/combined/combined.csv
+
+Outputs:
+
+- ../data/combined/final_combined.csv
+
+Process:
+
+- Feature engineering of macroeconomic inputs
+    - Percentage difference
+    - Simple Moving Averages (SMA)
+    - Exponentially Weighted Moving Averages (EWM)
+- Feature normalisation
+- Feature selection
+    - Variance inflation factor
+    - Random forest feature importance
+    - Information gain ratio
+- Stacking classifiers
+- TimeSeriesSplit Cross-Validation
+
+#### Flowchart for 07 Notebook
+
+![photo_name](photos/07_model_flow_chart.jpg)
 
 ## 08 Exploring Hypotheses
+
+Inputs:
+
+- (local) ../data/raw_data.txt or (dropbox) https://www.dropbox.com/s/l0y4g1t96ry4eyn/raw_data.txt?dl=1
+- ../data/text_features/lda.csv
+- ../data/target/target.csv
+- ../data/text_features/sentiments.csv
+- ../data/combined/combined.csv
+- ../data/combined/final_combined.csv
+
+Outputs:
+
+- None
+
+Hypotheses:
+
+1. “Movement of the Fed fun is more dependent on the speaker than the nature of the event.”
+2. “Movement of the Fed fund is dependent on the compound sentiment score of words used in the event rather than the
+   nature of the event.”
+3. “Macroeconomic data will have more predictive powers than Textual data in terms of predicting Fed Rate movement”¶
