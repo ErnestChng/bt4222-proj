@@ -66,7 +66,7 @@ Run the following command to merge existing data.
 
 `python scripts/01_Data.py -t merge`
 
-![photo_name](photos/01_Data_merge.png)
+![photo_name](photos/01_data_merge.png)
 
 ### Macro Data
 
