@@ -281,6 +281,7 @@ Process:
     - Information gain ratio
 - Stacking classifiers
 - TimeSeriesSplit Cross-Validation
+- Hyperparameter Tuning of Decision Tree meta learner with Grid Search
 
 #### Flowchart for 07 Notebook
 
